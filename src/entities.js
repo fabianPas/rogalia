@@ -10,7 +10,7 @@ Entity.LOCATION_IN_CONTAINER = 1;
 Entity.LOCATION_EQUIPPED = 2;
 Entity.LOCATION_BURDEN = 3;
 Entity.LOCATION_VENDOR = 4;
-
+Entity.QUEUEABLE_ACTIONS = ["disassemble", "entity-destroy", "BreakOff"];
 
 Entity.templates = {};
 

@@ -435,7 +435,7 @@ Entity.prototype = {
             };
         }
         if (!(game.player.Instance && game.player.Instance.match(/^tutorial-/)) || game.player.IsAdmin)
-            actions[2]["Destroy"] =  this.destroy;
+            actions[2]["Destroy"] = this.destroy;
 
         if (this.Location == Entity.LOCATION_IN_CONTAINER || this.Location == Entity.LOCATION_EQUIPPED)
             actions[2]["Drop"] =  function() { game.network.send("entity-drop", {id: this.Id}); };
@@ -513,26 +513,34 @@ Entity.prototype = {
         }
         use();
     },
+    disassemble: function() {
+        this.actionApplySimple("disassemble");
+    },
     destroy: function() {
+        this.actionApplySimple("entity-destroy");
+    },
+    actionApplySimple: function(action) {
         if (this.isContainer()) {
-            game.popup.confirm(T("It will be destroyed with all it's contents"), () => this.forceDestroy());
+            game.popup.confirm(T("It will be destroyed with all it's contents"), () => this.forceAction(action));
             return;
         }
 
-        if (this.inContainer() && game.controller.modifier.ctrl && game.controller.modifier.shift) {
+        this.doAction(action);
+    },
+    doAction: function(action) {
+        if (_.indexOf(Entity.QUEUEABLE_ACTIONS, action) > 0 && this.inContainer() && game.controller.modifier.ctrl && game.controller.modifier.shift) {
             var container = Container.getEntityContainer(this);
             if (!container) {
-                this.forceDestroy();
+                this.forceAction(action);
                 return;
             }
-            var list = container.getRelatedEntities(this);
-            this.queueAction("entity-destroy", list);
+            this.queueAction(action, container.filter(entity => entity && entity.is(this.Type)));
         } else {
-            this.forceDestroy();
+            this.forceAction(action);
         }
     },
-    forceDestroy: function() {
-        game.network.send("entity-destroy", {id: this.Id});
+    forceAction: function(action) {
+        game.network.send(action, {id: this.Id});
     },
     fix: function() {
         game.network.send("entity-fix", {id: this.Id});
@@ -543,15 +551,12 @@ Entity.prototype = {
     lift: function() {
         game.network.send("lift-start", {id: this.Id});
     },
-    setRespawn: function() {
-        if (this.Creator && this.Creator != game.player.Id) {
-            game.popup.alert(T("It's not your respawn"));
-            return;
+    queueAction(action, list) {
+        if (list.length > 0) {
+            game.network.send(action, {Id: _.head(list).Id}, () => {
+                this.queueAction(action, _.tail(list));
+            });
         }
-        var id = this.Id;
-        game.popup.confirm(T("Confirm?"), function() {
-            game.network.send("SetRespawn", {id: id});
-        });
     },
     actionApply: function(action) {
         var localAction = util.lcfirst(action);
@@ -561,9 +566,7 @@ Entity.prototype = {
                 return;
             }
 
-            game.network.send(action, {
-                id: this.Id
-            });
+            this.doAction(action);
         };
     },
     inWorld: function() {
@@ -621,34 +624,6 @@ Entity.prototype = {
 
         game.network.send("Open", {Id: this.Id}, () => Container.show(this));
         return null;
-    },
-    disassemble: function() {
-        if (this.isContainer()) {
-            game.popup.confirm(T("It will be destroyed with all it's contents"), () => this.forceDisassemble());
-            return;
-        }
-
-        if (this.inContainer() && game.controller.modifier.ctrl && game.controller.modifier.shift) {
-            var container = Container.getEntityContainer(this);
-            if (!container) {
-                this.forceDisassemble();
-                return;
-            }
-            var list = container.getRelatedEntities(this);
-            this.queueAction("disassemble", list);
-        } else {
-            this.forceDisassemble();
-        }
-    },
-    queueAction(action, list) {
-        if (list.length > 0) {
-            game.network.send(action, {Id: _.head(list)}, () => {
-                this.queueAction(action, _.tail(list));
-            });
-        }
-    },
-    forceDisassemble() {
-        game.network.send("disassemble", {Id: this.Id});
     },
     split: function() {
         var args = {Id: this.Id};
