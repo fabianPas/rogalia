@@ -516,6 +516,17 @@ Entity.prototype = {
     destroy: function() {
         if (this.isContainer()) {
             game.popup.confirm(T("It will be destroyed with all it's contents"), () => this.forceDestroy());
+            return;
+        }
+
+        if (this.inContainer() && game.controller.modifier.ctrl && game.controller.modifier.shift) {
+            var container = Container.getEntityContainer(this);
+            if (!container) {
+                this.forceDestroy();
+                return;
+            }
+            var list = container.getRelatedEntities(this);
+            this.queueAction("entity-destroy", list);
         } else {
             this.forceDestroy();
         }
@@ -623,9 +634,7 @@ Entity.prototype = {
                 this.forceDisassemble();
                 return;
             }
-            var list = container.slots
-                .filter((slot) => slot.entity && slot.entity.Type == this.Type) // use is(this.Group)?
-                .map((slot) => slot.entity.Id);
+            var list = container.getRelatedEntities(this);
             this.queueAction("disassemble", list);
         } else {
             this.forceDisassemble();

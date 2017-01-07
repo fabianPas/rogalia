@@ -97,6 +97,10 @@ Container.prototype = {
     forEach: function(callback)  {
         this.slots.forEach(callback);
     },
+    getRelatedEntities: function(entity) {
+        return this.slots.filter((slot) => slot.entity != null && slot.entity.is(entity.Type))
+            .map((slot) => slot.entity.Id);
+    },
     createContainerPanel: function() {
         var slots = dom.div("slots-wrapper");
         this._slots.forEach(function(id, i) {
