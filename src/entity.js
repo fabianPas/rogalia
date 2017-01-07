@@ -521,26 +521,23 @@ Entity.prototype = {
     },
     actionApplySimple: function(action) {
         if (this.isContainer()) {
-            game.popup.confirm(T("It will be destroyed with all it's contents"), () => this.forceAction(action));
+            game.popup.confirm(T("It will be destroyed with all it's contents"), () => game.network.send(action, {id: this.Id}));
             return;
         }
 
-        this.doAction(action);
+        this.queueActionMaybe(action);
     },
-    doAction: function(action) {
-        if (_.indexOf(Entity.QUEUEABLE_ACTIONS, action) > 0 && this.inContainer() && game.controller.modifier.ctrl && game.controller.modifier.shift) {
+    queueActionMaybe: function(action) {
+        if (_.includes(Entity.QUEUEABLE_ACTIONS, action) && this.inContainer() && game.controller.modifier.ctrl && game.controller.modifier.shift) {
             var container = Container.getEntityContainer(this);
             if (!container) {
-                this.forceAction(action);
+                game.network.send(action, {id: this.Id});
                 return;
             }
             this.queueAction(action, container.filter(entity => entity && entity.is(this.Type)));
         } else {
-            this.forceAction(action);
+            game.network.send(action, {id: this.Id});
         }
-    },
-    forceAction: function(action) {
-        game.network.send(action, {id: this.Id});
     },
     fix: function() {
         game.network.send("entity-fix", {id: this.Id});
@@ -566,7 +563,7 @@ Entity.prototype = {
                 return;
             }
 
-            this.doAction(action);
+            this.queueActionMaybe(action);
         };
     },
     inWorld: function() {
