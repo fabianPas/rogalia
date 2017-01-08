@@ -90,19 +90,19 @@ class Game {
             vk: function() {
                 var vk = document.createElement("button");
                 var vkLogo = document.createElement("img");
-                vkLogo.src = "http://vk.com/favicon.ico";
+                vkLogo.src = "https://vk.com/favicon.ico";
                 vk.appendChild(vkLogo);
                 vk.appendChild(document.createTextNode(T("Group")));
-                vk.onclick = this._openLink("http://vk.com/rogalia");
+                vk.onclick = this._openLink("https://vk.com/rogalia");
                 return vk;
             },
             twitter: function() {
                 var twitter = document.createElement("button");
                 var twitterLogo = document.createElement("img");
-                twitterLogo.src = "http://twitter.com/favicon.ico";
+                twitterLogo.src = "https://twitter.com/favicon.ico";
                 twitter.appendChild(twitterLogo);
                 twitter.appendChild(document.createTextNode(T("Twitter")));
-                twitter.onclick = this._openLink("http://twitter.com/Tatrics");
+                twitter.onclick = this._openLink("https://twitter.com/Tatrics");
                 return twitter;
             },
             wiki: function() {
@@ -136,9 +136,9 @@ class Game {
                 authors.textContent = T("Authors");
 
                 var links = [
-                    ["Code", "TatriX", "http://vk.com/tatrix"],
-                    ["Graphics", "Nanalli", "http://vk.com/id325294403"],
-                    // ["Music", "Иван Кельт", "http://vk.com/icelt"],
+                    ["Code", "TatriX", "https://vk.com/tatrix"],
+                    ["Graphics", "Nanalli", "https://vk.com/id325294403"],
+                    // ["Music", "Иван Кельт", "https://vk.com/icelt"],
 
                 ].map(function(tuple) {
                     var title = document.createElement("cite");
@@ -238,12 +238,7 @@ class Game {
     }
 
     proto() {
-        switch (document.location.protocol) {
-        case "http:":
-        case "https":
-            return document.location.protocol;
-        }
-        return "http:";
+        return (document.location.protocol == "https:") ? "https:" : "http:";
     }
 
     makeServerAddr(path) {
@@ -310,18 +305,22 @@ class Game {
             var gui = require("nw.gui");
             var win = gui.Window.get();
             win.on("close", () => {
-                this.save();
-                gui.App.quit();
+                // hack to fix nw.js bug
+                // see https://github.com/nwjs/nw.js/issues/2087
+                if (window) {
+                    this.save();
+                }
+                win.close(true);
             });
 
 
             window.addEventListener("wheel", function (e) {
-                console.log("IN");
                 if (e.ctrlKey) {
-                    if (e.deltaY > 0) {
+                    if (e.shiftKey) {
+                        win.zoomLevel = 0.0;
+                    } else if (e.deltaY > 0) {
                         win.zoomLevel -= 0.5;
-                    }
-                    else {
+                    } else {
                         win.zoomLevel += 0.5;
                     }
                     localStorage.zoomLevel = win.zoomLevel;
@@ -337,6 +336,8 @@ class Game {
 
     quit() {
         this.clearCredentials();
+        // force save here, becuase nwjs onClose handler is broken
+        this.save();
         require("nw.gui").App.closeAllWindows();
     }
 

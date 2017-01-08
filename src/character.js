@@ -1272,66 +1272,77 @@ Character.prototype = {
             var rating = dom.div("rating");
             var buttons = dom.div("#fishing-buttons");
 
-            var actions = [">", ">>", ">>>", "<", "<<", "<<<"];
-            dom.append(buttons, actions.map(function(action, index) {
+            dom.append(buttons, makeButtons(["<", "<<", "<<<"], 3));
+            dom.append(buttons, makeButtons([">", ">>", ">>>"], 0));
+
+            var playerValue = dom.span("?", "value");
+            var playerMeter = dom.tag("meter");
+            playerMeter.max = 300;
+            playerMeter.style.width = "100%";
+            playerMeter.title = T("Player");
+
+            var fishValue = dom.span("?", "value");
+            var fishMeter = dom.tag("meter");
+            fishMeter.max = 300;
+            fishMeter.style.width = "100%";
+            fishMeter.title = T("Fish");
+
+
+            panel = new Panel("fishing", "Fishing", [
+                rating,
+                dom.img("assets/icons/fishing/fish.png"),
+                fishMeter,
+                fishValue,
+                dom.img("assets/icons/fishing/player.png"),
+                playerMeter,
+                playerValue,
+                dom.hr(),
+                buttons,
+            ]);
+            panel.player = playerMeter;
+            panel.fish = fishMeter;
+            panel.rating = rating;
+            panel.fishValue = fishValue;
+            panel.playerValue = playerValue;
+        }
+        if ("Rating" in data) {
+            panel.player.value = +data.Player || 0;
+            panel.fish.value = +data.Fish || 0;
+            panel.playerValue.textContent = +data.Player || 0;
+            panel.fishValue.textContent = +data.Fish || 0;
+        }
+        if (data.Ok == "fishing-finished") {
+            dom.forEach("#fishing-buttons button", function() {
+                this.disabled = true;
+            });
+            panel.hide();
+            return null;
+        }
+        dom.forEach("#fishing-buttons button", function() {
+            this.disabled = false;
+        });
+        panel.show();
+        return repeat;
+
+
+        function makeButtons(actions, offset) {
+            return dom.wrap("button-group", actions.map(function(action, index) {
                 var button = dom.button(
                     T(action),
                     "",
                     function() {
-                        game.network.send("fishing-move", {move: this.move});
-                        dom.forEach("#fishing-buttons > button", function() {
+                        game.network.send("fishing-move", {move: offset + this.move});
+                        dom.forEach("#fishing-buttons button", function() {
                             this.disabled = true;
                         });
                     }
                 );
 
                 button.move = index;
-                button.style.width = "100px";
                 button.disabled = true;
                 return button;
             }));
-            var playerIcon = dom.img("assets/icons/fishing/player.png");
-            var playerMeter = dom.tag("meter");
-            playerMeter.max = 300;
-            playerMeter.style.width = "100%";
-            playerMeter.title = T("Player");
-
-            var fishIcon = dom.img("assets/icons/fishing/fish.png");
-            var fishMeter = dom.tag("meter");
-            fishMeter.max = 300;
-            fishMeter.style.width = "100%";
-            fishMeter.title = T("Fish");
-
-            panel = new Panel("fishing", "Fishing", [
-                rating,
-                fishIcon,
-                fishMeter,
-                playerIcon,
-                playerMeter,
-                buttons,
-            ]);
-            panel.player = playerMeter;
-            panel.fish = fishMeter;
-            panel.rating = rating;
-            panel.buttons = buttons;
         }
-        if ("Rating" in data) {
-            panel.player.value = +data.Player || 0;
-            panel.fish.value = +data.Fish || 0;
-            panel.rating.textContent = T(data.Rating);
-        }
-        if (data.Ok == "fishing-finished") {
-            dom.forEach("#fishing-buttons > button", function() {
-                this.disabled = true;
-            });
-            panel.hide();
-            return null;
-        }
-        dom.forEach("#fishing-buttons > button", function() {
-            this.disabled = false;
-        });
-        panel.show();
-        return repeat;
     },
     updateEffect: function(name, effect) {
         var id = "effect-" + name;

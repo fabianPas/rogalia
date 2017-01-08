@@ -74,6 +74,9 @@ function Settings() {
         "settings.graphics.centerScreen": function() {
             game.world.classList.toggle("snap-left");
         },
+        "settings.graphics.fastRender": function() {
+            game.reload();
+        },
         "settings.character.pathfinding": function() {
             game.player.Settings.Pathfinding = !game.player.Settings.Pathfinding;
             setPlayerSettings();

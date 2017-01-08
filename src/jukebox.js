@@ -24,7 +24,7 @@ class Jukebox {
 
         game.sound.stopMusic();
 
-        var src = "http://www.youtube.com/embed/" + video + "?autoplay=1";
+        var src = "https://www.youtube-nocookie.com/embed/" + video + "?autoplay=1";
         if (time)
             src += "&start=" + time;
         this.iframe.src = src;

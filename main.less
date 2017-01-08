@@ -2207,27 +2207,49 @@ input[type=number], .lot-quantity > input, .price > input {
     margin: 5px 0 0;
 }
 
-#fishing  button {
-    display: block;
-    margin-bottom: 5px;
-    width: 100%;
-}
-#fishing button:last-child {
-    margin-bottom: 0;
-}
+#fishing {
+    #fishing-buttons {
+        display: flex;
+        width: 150px;
+        justify-content: space-around;
+    }
 
-#fishing .rating {
-    text-align: center;
-    padding: 7px;
-}
+    .button-group {
+        display: flex;
+        flex-direction: column;
+    }
 
-#fishing meter {
-    position: relative;
-}
+    button {
+        display: block;
+        margin-bottom: 5px;
+        width: 100%;
+    }
 
-#fishing img {
-    display: block;
-    margin: auto;
+    button:last-child {
+        margin-bottom: 0;
+    }
+
+    .rating {
+        text-align: center;
+        padding: 7px;
+    }
+
+    meter {
+        position: relative;
+    }
+
+    img {
+        display: block;
+        margin: auto;
+    }
+
+    .value {
+        position: absolute;
+        text-align: center;
+        left: 0;
+        right: 0;
+        color: black;
+    }
 }
 
 #help {
