@@ -241,42 +241,25 @@ function Chat() {
     myMessages.loadFromStorage();
 
     this.autocomplete = function(message) {
-        var data = game.controller.system.users.getOnlinePlayers();
-        var candidates = [];
-
-        for (var i = 0; i < data.length; i++) {
-            if (data[i].indexOf(message) == 0 && data[i].length > message.length)
-                candidates.push(data[i])
-        }
+        var players = game.controller.system.users.getOnlinePlayers();
+        var candidates = players.filter(
+            (player) => player.indexOf(message) == 0 && player.length > message.length
+        );
 
         if (candidates.length > 0) { // some candidates for autocompletion are found
             if (candidates.length == 1) {
                 return candidates[0];
             } else {
-                return longestInCommon(candidates, message.length);
+                var A = candidates.concat().sort(),
+                    a1 = A[0], a2 = A[A.length-1], L = a1.length, i = 0;
+                while(i < L && a1.charAt(i) === a2.charAt(i)) i++;
+                return a1.substring(0, i);
             }
         }
 
         return null;
     };
-
-    function longestInCommon(candidates, index) {
-        do {
-            var memo = null;
-            for (var i = 0; i < candidates.length; i++) {
-                var ch = candidates[i].charAt(index);
-                if (!ch)
-                    break;
-                if (!memo)
-                    memo = ch;
-                else if (ch != memo)
-                    break;
-            }
-        } while (i == candidates.length && ++index);
-
-        return candidates[0].slice(0, index);
-    }
-
+    
     this.keydown = function(e) {
         if (e.ctrlKey && e.keyCode ==  82) {
             self.preparePrivate(lastPrivate);
