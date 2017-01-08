@@ -88,4 +88,8 @@ function Users() {
             renderList(list.content, list.data, list.empty);
         }
     };
+
+    this.getOnlinePlayers = function() {
+        return lists.OnlinePlayers.data;
+    };
 }

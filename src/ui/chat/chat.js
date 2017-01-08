@@ -240,6 +240,25 @@ function Chat() {
     var myMessages = new ChatRing();
     myMessages.loadFromStorage();
 
+    this.autocomplete = function(message) {
+        var data = game.controller.system.users.getOnlinePlayers();
+        var candidates = [];
+
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].indexOf(message) == 0 && data[i].length > message.length)
+                candidates.push(data[i])
+        }
+
+        console.log(candidates);
+
+        /*if (candidates.length > 0) {
+            // some candidates for autocompletion are found
+            if (candidates.length == 1) input.value = candidates[0]
+            else input.value = longestInCommon(candidates, input.value.length)
+            return true
+        }*/
+    };
+
     this.keydown = function(e) {
         if (e.ctrlKey && e.keyCode ==  82) {
             self.preparePrivate(lastPrivate);
@@ -260,6 +279,11 @@ function Chat() {
             if (message.length == 0) {
                 e.target.blur();
             }
+            break;
+        case 9: // tab
+            e.target.value = this.autocomplete(message);
+            e.preventDefault();
+            return true;
             break;
         default:
             return true;
