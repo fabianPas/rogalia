@@ -249,15 +249,33 @@ function Chat() {
                 candidates.push(data[i])
         }
 
-        console.log(candidates);
+        if (candidates.length > 0) { // some candidates for autocompletion are found
+            if (candidates.length == 1) {
+                return candidates[0];
+            } else {
+                return longestInCommon(candidates, message.length);
+            }
+        }
 
-        /*if (candidates.length > 0) {
-            // some candidates for autocompletion are found
-            if (candidates.length == 1) input.value = candidates[0]
-            else input.value = longestInCommon(candidates, input.value.length)
-            return true
-        }*/
+        return null;
     };
+
+    function longestInCommon(candidates, index) {
+        do {
+            var memo = null;
+            for (var i = 0; i < candidates.length; i++) {
+                var ch = candidates[i].charAt(index);
+                if (!ch)
+                    break;
+                if (!memo)
+                    memo = ch;
+                else if (ch != memo)
+                    break;
+            }
+        } while (i == candidates.length && ++index);
+
+        return candidates[0].slice(0, index);
+    }
 
     this.keydown = function(e) {
         if (e.ctrlKey && e.keyCode ==  82) {
@@ -281,10 +299,12 @@ function Chat() {
             }
             break;
         case 9: // tab
-            e.target.value = this.autocomplete(message);
+            var value = this.autocomplete(message);
+            if (value)
+                e.target.value = value;
+
             e.preventDefault();
             return true;
-            break;
         default:
             return true;
         }
