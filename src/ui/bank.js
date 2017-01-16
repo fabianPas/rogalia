@@ -7,8 +7,12 @@ function Bank(npc) {
     var price = Vendor.createPriceInput();
 
     var deposit = dom.button(T("Deposit"), "", () => send("deposit"));
-
     var withdraw = dom.button(T("Withdraw"), "", () => send("withdraw"));
+    var max = dom.button(T("Max"), "", () => maxCurrency());
+
+    function maxCurrency() {
+        console.log("Max it");
+    }
 
     function send(action) {
         var cost = price.cost();
@@ -47,6 +51,7 @@ function Bank(npc) {
         balance,
         dom.hr(),
         price,
+        max,
         deposit,
         withdraw,
         dom.hr(),
