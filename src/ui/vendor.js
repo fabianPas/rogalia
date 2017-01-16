@@ -91,6 +91,21 @@ Vendor.createPriceInput = function() {
         gold.value = gld;
         silver.value = slv;
     };
+
+    price.setTypeValue = function(type, value) {
+        switch(type) {
+            case "platinum":
+                platinum.value = value;
+                break;
+            case "gold":
+                gold.value = value;
+                break;
+            case "silver":
+                silver.value = value;
+                break;
+        }
+    };
+
     return price;
 };
 

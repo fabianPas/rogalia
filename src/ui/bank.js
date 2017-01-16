@@ -11,7 +11,10 @@ function Bank(npc) {
     var max = dom.button(T("Max"), "", () => maxCurrency());
 
     function maxCurrency() {
-        console.log("Max it");
+        var items = game.player.findItems(["currency"]);
+        _(items.currency).groupBy('Type').map((v, k) => (
+            price.setTypeValue(k, _.sumBy(v, 'Amount'))
+        )).value();
     }
 
     function send(action) {
