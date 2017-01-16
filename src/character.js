@@ -1665,28 +1665,67 @@ Character.prototype = {
     },
     bag: function() {
         return Entity.get(this.Equip[0]);
+    },
+    iterateContainers: function(callback) {
+        var checked = {};
+        var bag = Container.bag();
+        if (bag) {
+            check(bag);
+        }
 
+        Container.forEach(function(container) {
+            if (container.visible || container.entity.belongsTo(game.player)) {
+                check(container);
+            }
+        });
+
+        function check(container) {
+            if (checked[container.id])
+                return;
+            checked[container.id] = true;
+            container.update();
+            var containers = [];
+            container.forEach(function(slot) {
+                if (!slot.entity)
+                    return;
+                callback(slot, container);
+                if (slot.entity.isContainer()) {
+                    containers.push(Container.open(slot.entity));
+                }
+            });
+            containers.forEach(check);
+        }
     },
     findItems: function(kinds) {
         var found = {};
+        var self = this;
+
         kinds.forEach(function(kind) {
             found[kind] = [];
         });
+
         var entities = [
-            this.equipSlot("bag"),
             this.equipSlot("right-hand"),
             this.equipSlot("left-hand"),
         ].map(Entity.get).map(search);
 
-        // TODO: search in recursive containers
+        self.iterateContainers(function (slot) {
+            kinds.forEach(function (kind) {
+                if (slot.entity && slot.entity.is(kind)) {
+                    found[kind].push(slot.entity);
+                }
+            });
+        });
+
         function search(entity) {
             if (!entity)
                 return;
+
             var items = (entity.Props.Slots) ? entity.Props.Slots.map(Entity.get) : [entity];
-            items.forEach(function(entity) {
+            items.forEach(function (entity) {
                 if (!entity)
                     return;
-                kinds.forEach(function(kind) {
+                kinds.forEach(function (kind) {
                     if (entity.is(kind)) {
                         found[kind].push(entity);
                     }
