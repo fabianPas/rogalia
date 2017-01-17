@@ -1296,6 +1296,38 @@ function Controller(game) {
         }
     };
 
+    this.iterateContainers = function(callback) {
+        var checked = {};
+        var bag = Container.bag();
+        if (bag) {
+            check(bag);
+        }
+
+        Container.forEach(function(container) {
+            if (container.visible || container.entity.belongsTo(game.player)) {
+                check(container);
+            }
+        });
+
+        function check(container) {
+            if (checked[container.id])
+                return;
+            checked[container.id] = true;
+            container.update();
+            var containers = [];
+            container.forEach(function(slot) {
+                if (!slot.entity)
+                    return;
+
+                callback(slot, container);
+                if (slot.entity.isContainer()) {
+                    containers.push(Container.open(slot.entity));
+                }
+            });
+            containers.forEach(check);
+        }
+    };
+
     this.updatePing = function(ping) {
         this.system && this.system.update(ping);
     };

@@ -142,7 +142,7 @@ Craft.prototype = {
         var auto = dom.button(T("Auto"), "build-auto", function() {
             var list = [];
             var items = [];
-            game.player.iterateContainers(function(item) {
+            game.controller.iterateContainers(function(item) {
                 items.push(item.entity);
             });
             for (var group in blank.Props.Ingredients) {
@@ -532,9 +532,9 @@ Craft.prototype = {
 
         this.slots = slots;
 
-        var auto = dom.button(T("Auto"), "recipe-auto", game.player.iterateContainers.bind(this, null));
-        var create = dom.button(T("Create"), "recipe-create", this.create.bind(this));
-        var all = dom.button(T("Craft all"), "recipe-craft-all", this.craftAll.bind(this));
+        var auto = dom.button(T("Auto"), "recipe-auto", () => game.controller.iterateContainers((slot) => this.dwim(slot)));
+        var create = dom.button(T("Create"), "recipe-create", () => this.create());
+        var all = dom.button(T("Craft all"), "recipe-craft-all", () => this.craftAll());
         var buttons = dom.wrap("#recipe-buttons", [all, auto, create]);
 
         dom.append(this.recipeDetails, [
@@ -601,7 +601,7 @@ Craft.prototype = {
         ]);
     },
     craftAll: function() {
-        game.player.iterateContainers(this.dwim.bind(this));
+        game.controller.iterateContainers((slot) => this.dwim(slot));
         this.create(true);
     },
     create: function(craftAll) {

@@ -1666,36 +1666,6 @@ Character.prototype = {
     bag: function() {
         return Entity.get(this.Equip[0]);
     },
-    iterateContainers: function(callback) {
-        var checked = {};
-        var bag = Container.bag();
-        if (bag) {
-            check(bag);
-        }
-
-        Container.forEach(function(container) {
-            if (container.visible || container.entity.belongsTo(game.player)) {
-                check(container);
-            }
-        });
-
-        function check(container) {
-            if (checked[container.id])
-                return;
-            checked[container.id] = true;
-            container.update();
-            var containers = [];
-            container.forEach(function(slot) {
-                if (!slot.entity)
-                    return;
-                callback(slot, container);
-                if (slot.entity.isContainer()) {
-                    containers.push(Container.open(slot.entity));
-                }
-            });
-            containers.forEach(check);
-        }
-    },
     findItems: function(kinds) {
         var found = {};
         var self = this;
@@ -1709,7 +1679,7 @@ Character.prototype = {
             this.equipSlot("left-hand"),
         ].map(Entity.get).map(search);
 
-        self.iterateContainers(function (slot) {
+        game.controller.iterateContainers(function (slot) {
             kinds.forEach(function (kind) {
                 if (slot.entity && slot.entity.is(kind)) {
                     found[kind].push(slot.entity);
