@@ -485,19 +485,22 @@ function Chat() {
             defaultPrefix: "custom",
             channels: ["custom", "private"],
         }
-    ].map(function(tab, i) {
+    ].map((tab, i) => {
         var name = tab.name;
         tab.title = TT(name);
-        tab.init = function(title, contents) {
+        tab.init = (title, contents) => {
             title.classList.add("chat-tab");
             title.classList.add("chat-tab-" + name);
             tab.titleElement = title;
         };
-        tab.update = function(title, content) {
+
+        tab.update = (title, content) => {
             defaultPrefix = tab.defaultPrefix || "";
             scrollToTheEnd(tab.messagesElement);
             title.classList.remove("has-new-messages");
+            this.newMessageElement.focus();
         };
+
         var messagesElement = dom.div("messages");
         messagesElement.innerHTML = localStorage.getItem("chat.log." + name) || "";
 
@@ -546,6 +549,10 @@ function Chat() {
     this.newMessageElement.onblur = function(e) {
         // this hack allows onclick events for settings button and chat links
         setTimeout(function() {
+            // cancel the blur if our input is selected again
+            if (document.activeElement == e.srcElement)
+                return;
+
             semi.focus = false;
             semihide();
         }, 500);
