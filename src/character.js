@@ -1467,7 +1467,7 @@ Character.prototype = {
             this.setPos(p.x, p.y);
         }
 
-        if (this.isPlayer) {
+        if (this.isPlayer || this.Riding) {
             game.controller.updateVisibility();
             game.controller.minimap.update();
         }
@@ -1531,24 +1531,27 @@ Character.prototype = {
         this._pathHistory = [];
     },
     isNear: function(entity) {
+        var padding = ((this.Mount) ? this.mount.Radius : this.Radius) *2;
+
         if (entity.belongsTo(game.player))
             return true;
         if (entity.Width) {
-            var padding = this.Radius*2;
             return util.rectIntersects(
                 entity.leftTopX() - padding,
                 entity.leftTopY() - padding,
                 entity.Width + padding * 2,
                 entity.Height + padding * 2,
-                this.leftTopX(),
-                this.leftTopY(),
-                this.Width,
-                this.Height
+                (this.Mount) ? this.mount.leftTopX() : this.leftTopX(),
+                (this.Mount) ? this.mount.leftTopY() : this.leftTopY(),
+                (this.Mount) ? this.mount.Width : this.Width,
+                (this.Mount) ? this.mount.Height : this.Height
             );
         }
-        var len_x = entity.X - this.X;
-        var len_y = entity.Y - this.Y;
-        var r = 2*this.Radius + Math.max(entity.Radius, Math.min(entity.Width, entity.Height) / 2) + 1;
+
+        var len_x = entity.X - (this.Mount) ? this.mount.X : this.X;
+        var len_y = entity.Y - (this.Mount) ? this.mount.Y : this.Y;
+
+        var r = padding + Math.max(entity.Radius, Math.min(entity.Width, entity.Height) / 2) + 1;
 
         return util.distanceLessThan(len_x, len_y, r);
     },
@@ -1739,8 +1742,9 @@ Character.prototype = {
         return false;
     },
     canUse: function(entity) {
-        if (entity instanceof Character)
-            return this.distanceTo(entity) < 2*CELL_SIZE;
+        if (entity instanceof Character) {
+            return this.distanceTo(entity) < 2 * CELL_SIZE;
+        }
 
         switch (entity.Group) {
         case "shit":
@@ -1796,6 +1800,9 @@ Character.prototype = {
         }.bind(this));
     },
     distanceTo: function(e) {
+        if (this.Mount)
+            return Math.hypot(this.mount.X - e.X, this.mount.Y - e.Y );
+
         return Math.hypot(this.X - e.X, this.Y - e.Y);
     },
     selectNextTarget: function(p = new Point(this)) {
