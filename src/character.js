@@ -1467,7 +1467,7 @@ Character.prototype = {
             this.setPos(p.x, p.y);
         }
 
-        if (this.isPlayer || this.Riding) {
+        if (this.isPlayer || this.rider && this.rider.isPlayer) {
             game.controller.updateVisibility();
             game.controller.minimap.update();
         }
@@ -1531,7 +1531,9 @@ Character.prototype = {
         this._pathHistory = [];
     },
     isNear: function(entity) {
-        var padding = ((this.Mount) ? this.mount.Radius : this.Radius) *2;
+        const target = this.mount || this;
+        var padding = target.Radius * 2;
+
 
         if (entity.belongsTo(game.player))
             return true;
@@ -1541,15 +1543,15 @@ Character.prototype = {
                 entity.leftTopY() - padding,
                 entity.Width + padding * 2,
                 entity.Height + padding * 2,
-                (this.Mount) ? this.mount.leftTopX() : this.leftTopX(),
-                (this.Mount) ? this.mount.leftTopY() : this.leftTopY(),
-                (this.Mount) ? this.mount.Width : this.Width,
-                (this.Mount) ? this.mount.Height : this.Height
+                target.leftTopX(),
+                target.leftTopY(),
+                target.Width,
+                target.Height
             );
         }
 
-        var len_x = entity.X - (this.Mount) ? this.mount.X : this.X;
-        var len_y = entity.Y - (this.Mount) ? this.mount.Y : this.Y;
+        var len_x = entity.X - target.X;
+        var len_y = entity.Y - target.Y;
 
         var r = padding + Math.max(entity.Radius, Math.min(entity.Width, entity.Height) / 2) + 1;
 
