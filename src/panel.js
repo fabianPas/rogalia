@@ -246,6 +246,7 @@ Panel.prototype = {
             return;
 
         if (!game.player.canUse(this.entity)) {
+            console.log('cant use');
             this.close();
         }
     },

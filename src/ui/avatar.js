@@ -17,7 +17,7 @@ class Avatar {
             dom.wrap("avatar-info", [
                 dom.wrap(
                     "avatar-name",
-                    [character.Name].concat(this.bars.map(bar => bar.element))
+                    [character.getName()].concat(this.bars.map(bar => bar.element))
                 ),
             ]),
         ]);

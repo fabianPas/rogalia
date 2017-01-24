@@ -153,7 +153,7 @@ Vendor.prototype = {
             });
         }
 
-        this.panel = new Panel("vendor", TT("Vendor of {name}", {name: vendor.Name}), [dom.tabs(this.tabs)]);
+        this.panel = new Panel("vendor", TT("Vendor of {name}", {name: vendor.getName()}), [dom.tabs(this.tabs)]);
         this.panel.entity = vendor;
         // this.panel.temporary = true;
         this.panel.hooks.hide = this.removeItems.bind(this);

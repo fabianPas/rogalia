@@ -108,6 +108,10 @@ Character.prototype = {
     getZ: function() {
         return 0;
     },
+
+    /**
+     * @return {string}
+     */
     get Name() {
         // TODO: remove fix
         if (this.IsMob && this.name.match(/-\d+/))
@@ -208,7 +212,10 @@ Character.prototype = {
                 var avatar = new Avatar(member);
             } else {
                 avatar = new Avatar({
-                    Name: name,
+                    Name: this.getName(),
+                    getName() {
+                        return name;
+                    },
                     avatar() {
                         return loader.loadImage("avatars/new.png", true);
                     },
